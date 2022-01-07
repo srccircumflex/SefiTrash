@@ -16,3 +16,5 @@
   Config-tk
   Config-cli !
   ```
+  ****
+  ![GitHub commit activity](https://img.shields.io/github/commit-activity/y/srccircumflex/SefiTrash)
