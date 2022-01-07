@@ -1,0 +1,96 @@
+                ##########################################
+                #                                        #
+                #           Method-Call-Rules            #
+                #                                        #
+                ##########################################
+
+DESCRIPTION
+
+  This file defines the user and IP dependent rules about which methods are allowed to be
+  executed by a client on the host side.
+
+SYNOPSIS
+
+  <username> <IP> \\ <exclusions>
+
+  - username defines the target
+  - <IP> must be an ipv4 address (255.255.255.255)
+  - <IP> may have the wildcard character `0' (192.168.0.0)
+  - <exclusions> can affect an entire method, defines a limit of execution or excludes certain
+    arguments.
+
+METHODS
+
+  000 : shutdown method
+  101 : login change method
+  022 : hard restart method
+  220 : is an internal method who marks error messages (echoes header as err-response if called
+        from client side)
+  111 : reset method
+  GET
+  PUT
+  LOG
+  PWD
+
+METHOD KEY ARGUMENTS
+
+  111 = do reset [
+      T : b = return board-wrapper-info
+      T : B = ++ reset
+      T : c = return call-wrapper-info
+      T : C = ++ reset
+      T : f = fw reset
+      T : F = fw full reset
+      T : g = close gw
+  ]
+
+  GET [
+      m : l = DirList
+      m : f = File
+      m : F = File force PUT
+      m : a = PUT Dirs [&& File]
+      m : A = force PUT Dirs [&& File]
+     l1 : <size of the path-stack>
+     l2 : <size of the transfer-data>
+  ]
+
+  PUT [
+      m : f = File
+      m : F = File force PUT
+      m : a = Dirs [&& File]
+      m : A = force PUT Dirs [&& File]
+     l1 : <size of the path-stack>
+     l2 : <size of the transfer-data>
+  ]
+
+  LOG [
+      m : j = json/literal eval
+      m : t = letters
+     l1 : <size of the transfer-log-data>
+  ]
+
+  PWD [
+      m : p = paths
+      m : c = SecurePath configurations
+      m : u = Host-side user
+      m : a = All
+  ]
+
+EXAMPLES
+
+  000                         method exclusion
+  LOG[2]                      method limitation
+  PUT(m:aAF ; l2:>1.000.000)  header exclusion
+
+
+
+#f! BOARD_CALL_RULE
+
+#larry 0.0.0.0 \\ 000 022 220 111 101[1] GET PUT(m:aAF ; l2:>1.000.000)
+
+#EOF! BOARD_CALL_RULE
+
+
+
+
+

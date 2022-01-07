@@ -1,0 +1,32 @@
+                ##########################################
+                #                                        #
+                #  Source- / Destination-  Path - Rules  #
+                #                                        #
+                ##########################################
+
+DESCRIPTION
+
+  This file contains user-dependent rules about the sources and destinations of the file system.
+
+SYNOPSIS
+
+  <username> // <handling> // <path> // <comment>
+
+  - <username> is the target
+  - <hanling> can be `sb', `sw', `db' or `dw'
+	s=source
+	d=destination
+	b=black
+	w=white
+  - <path> should be an absolute path
+	All child directories are included if <path> does not end with double slash `//'. To
+	resolve soft-links <path> is treated as any request with `os.path.realpath'.
+
+
+#f! BOARD_PATH_RULE
+
+#larry // sb // /usr/bin // this is a comment
+#larry // sb // /etc
+
+#EOF! BOARD_PATH_RULE
+

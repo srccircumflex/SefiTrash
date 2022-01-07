@@ -1,0 +1,44 @@
+                ##########################################
+                #                                        #
+                #               User list                #
+                #                                        #
+                ##########################################
+
+DESCRIPTION
+
+  Defines registered users and some arguments. The arguments can be omitted in the file to refer
+  to the associated constant (`lft' `lpl' `lpd' / `FSC_XF_LIFETIME' `LAPSLOGIN_LIM_RUNTIME'
+  `LAPSLOGIN_DEL') or to query on stdio (`bpp').
+
+SYNOPSIS
+
+  <username> <arguments> `<del>'
+
+  - <username> defines the user and legitimizes him at the same time.
+  - arguments> are `lft', `lpl', `lpd' and `bpp'.
+  - the `<del>' flag is seeded automatically if configured
+
+ARGUMENTS
+
+  lft:<num>
+	Lifetime in seconds
+  lpl:<num>
+	Limit for expired logins in runtime
+  lpd:<0 or 1>
+	Boolean to define if a user line is marked with the <del> flag on expired login.
+  bpp:<0-999><`+' or `-'><1-9>.<1-9>
+	defines the basic peppers:
+           <initalvector><chipher-stream-part><part-priority><transpossiton-hops>.
+	example:
+	   255+4.8 --> iv=255, part=1, prio=4, hops=8
+	   2-9.9 --> iv=2, part=0, prio=9, hops=9
+
+
+
+
+#f! BOARD_USERS
+
+root	 lft:2764800000	 lpl:32	 lpd:0	bpp:61-1.3
+#larry	 lft:2	 lpl:1	 lpd:1  <del>
+
+#EOF! BOARD_USERS
