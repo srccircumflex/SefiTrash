@@ -365,7 +365,7 @@ class _Data(_Cells):
             self.log_text.insert(_str=msg_strings.CREATED % (_file, bool(_incl)))
 
     def write_fsc_out(self):
-        _file = self.file_out.get()
+        _file = self.fsc_out.get()
         try:
             defif = DefIfEndIf(_file, *configurations.IFDEFENDIF[TARGET_ATTR])
         except Exception as e:
@@ -386,11 +386,11 @@ class _Data(_Cells):
         else:
             self.log_text.insert(_str=msg_strings.SEPARATOR128)
             try:
-                with open(self.fsc_out.get(), "w") as f:
+                with open(_file, "w") as f:
                     f.write(configurations.IFDEFENDIF[TARGET_ATTR][0].decode() + '\n')
                     for u_ln in self.user_lines.values():
                         if _ln := u_ln.get_fsc(True):
-                            self.log_text.insert(msg_strings.WRITE % _ln.strip())
+                            self.log_text.insert(_str=msg_strings.WRITE % _ln.strip())
                             f.write(_ln)
                     f.write(configurations.IFDEFENDIF[TARGET_ATTR][1].decode() + '\n')
             except Exception as e:
