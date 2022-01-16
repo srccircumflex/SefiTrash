@@ -536,7 +536,8 @@ class ConvertDirHeader:
             'st_ctime': self.stat_time_conv
         }
 
-    def stat_origin_result(self, _stat) -> str:
+    @staticmethod
+    def stat_origin_result(_stat) -> str:
         return str(_stat)
 
     def stat_time_conv(self, _stat) -> str:
@@ -544,7 +545,8 @@ class ConvertDirHeader:
             return strftime(self.formt, gmtime(_stat))
         return strftime(self.formt, localtime(_stat))
 
-    def stat_size_conv(self, _stat) -> dict[str:int]:
+    @staticmethod
+    def stat_size_conv(_stat) -> dict[str:int]:
         return {
             'B': _stat,
             'K': round(_stat / 1024),
