@@ -1,0 +1,161 @@
+$$$%(get)
+Files transfer from host to client.
+
+Substitutions:
+    ~//     home directory of the file system
+    #//     configured home directory of SefiTrash
+    ´\ ´    a space in the path
+Option rules:
+    Long options require the previous execution of `get -l' or `get -L'.
+    The combination of the `n' switch requires the previous execution of `get -l'.
+    `rR' options use the archive mode, the destination can be a path that does not yet exist.
+    Long options and `-L' are local operations.
+
+  $$%(n?[lL])
+      -l [path]   get dir-list
+      -L [path]   get local dir-list
+      combination with `n' (requires `get -l' previously):
+        select src by dir-entry-number (example: `get -nL 1')
+  $$%(n?[fFaA])
+      -f  <src-path> [dst-path]  get file (default)
+      -F  <src-path> [dst-path]  get file !force mode
+      -a  <src-path> [dst-path]  get file in archive mode (make given dir)
+      -A  <src-path> [dst-path]  get file in archive mode (make given dir) !force mode
+      combination with `n' (requires `get -l' previously):
+        select src by dir-entry-number (example: `get -nf 1')
+  $$%(n?(r{1,2}|R{1,2}))
+      -r  <src-path> [dst-path]  get all files from src folder
+      -rr <src-path> [dst-path]  get all files from src folder ~recursive
+      -R  <src-path> [dst-path]  get all files from src folder !force-mod
+      -RR <src-path> [dst-path]  get all files from src folder ~recursive !force-mod
+      combination with `n' (requires `get -l' previously):
+        select src by dir-entry-number (example: `get -nr 1')
+  $$%(--List)
+      list files + all available stats
+  $$%(--list)
+      list files + standard stats
+  $$%(--enum)
+      enumerate output
+  $$%(--tform)
+      overwrite the default time-formatting # https://docs.python.org/3.9/library/time.html#time.strftime
+  $$%(--tutc)
+      enable/disable(default) utc-conversion
+  $$%(--write)
+      write out
+
+$$$%(put)
+Files transfer from client to host.
+
+Substitutions:
+    ~//     home directory of the file system
+    #//     configured home directory of SefiTrash
+    ´\ ´    a space in the path
+Option rules:
+    The combination of the `n' switch requires the previous execution of `get -L'.
+    `rR' options use the archive mode, the destination can be a path that does not yet exist.
+  $$%(n?[fFaA])
+      -f  <src-path> [dst-path]  put file (default)
+      -F  <src-path> [dst-path]  put file !force mode
+      -a  <src-path> [dst-path]  put file in archive mode (make given dir)
+      -A  <src-path> [dst-path]  put file in archive mode (make given dir) !force mode
+      combination with `n' (requires `get -L' previously):
+          select src by dir-entry-number (example: `put -nf 1')
+  $$%(n?(r{1,2}|R{1,2}))
+      -r  <src-path> [dst-path]  put all files from src folder
+      -rr <src-path> [dst-path]  put all files from src folder ~recursive
+      -R  <src-path> [dst-path]  put all files from src folder !force-mod
+      -RR <src-path> [dst-path]  put all files from src folder ~recursive !force-mod
+      combination with `n' (requires `get -L' previously):
+          select src by dir-entry-number (example: `put -nr 1')
+
+$$$%(log)
+write a message to the logfile on the host side
+  $$%([jt])
+      log message or json
+$$$%(cd)
+    Change the `s'ource, `d'estination or `a'll directories.
+    Capitalized options are local operations.
+  $$%([SDsdAa])
+$$$%(pwd)
+query current working directory and other configurations
+  $$%([pcuaL]{1,3})
+    -p            get path-configuration (default)
+  -c            get all SecurePath configurations
+  -u            get userhost
+  -a            get all (equivalent to -pcu)
+  -L            get all local-configurations
+  $$%(--list)
+  listing (requires 'pwd -[pcuaL]{1,3}' previously)
+
+$$$%(ch)
+change users login
+  $$%(--login)
+
+$$$%(reset)
+Reset cache memory and others
+  $$%([bBcCfFg]{1,4})
+  -b            get ip-board-wrapper-info as err-response
+  -B            ++ reset
+  -c            get secure-call-wrapper-info as err-response
+  -C            ++ reset
+  -f            reset firewall (clear unverified clients from cache, clear ip-board-wrapper and reset counter)
+  -F            firewall full reset (++ reset connection)
+  -g            close gateways and reset connection
+$$$%(shutdown)
+Shuts down the host
+$$$%(kill)
+Kills the host and restarts it
+$$$%(_err)
+#reserved#debugging#
+  $$%(None)
+
+$$$%(echo)
+returns a bypassed error message
+  $$%(None)
+
+$$$%(_pipe)
+#reserved#debugging#
+  $$%(None)
+
+$$$%(clear)
+Clears the terminal display
+$$$%(help)
+# TODO
+$$$%(logging)
+
+  $$%(--sockclose)
+Closes and deletes the sockStream
+  $$%(--sock)
+Directs outputs to SockStream
+  $$%(--io)
+Directs outputs to the terminal stream
+  $$%(--debug)
+activates the debug level for all streams except SockStream
+  $$%(--reset)
+reset all levels to configuration except for SockStream
+  $$%(--blackbox)
+activates the blackbox
+  $$%(--allS)
+sets the level for all output streams except for SockStream
+  $$%(--allF)
+sets the level for all file streams except for SockStream
+$$$%(exec)
+#reserved#debugging#
+  $$%(None)
+
+$$$%(bypass)
+activates the bypass
+  $$%(--switch)
+
+$$$%(exit)
+exiting
+  $$%(None)
+
+$$$%(0)
+exiting
+  $$%(None)
+
+
+
+
+$$$%(EOF)
