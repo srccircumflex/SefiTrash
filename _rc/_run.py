@@ -60,16 +60,25 @@ class MailValueError(ValueError):
     def __init__(self, *args):
         ValueError.__init__(*args)
 
-def _getifsubclassfrom(__attr:str, ___attr:str):
-    if __attr not in configurations.FROM_SUBCLASS:
-        return __attr
-    return getattr(
-        getattr(
-            __import__('_rc._defaults_', globals(), locals(), [''], 0),
-            __attr), ___attr)
+class GetFromIfFromSubClass:
+    cache = dict()
+
+    def __call__(self, __attr:str, ___attr:str):
+        if __attr not in configurations.FROM_SUBCLASS:
+            return __attr
+        self.cache.setdefault(
+            __attr,
+            getattr(
+                __import__('_rc._defaults_', globals(), locals(), [''], 0),
+                __attr
+            )()
+        )
+        return getattr(self.cache[__attr], ___attr)
+
+GetFromIfFromSubClass = GetFromIfFromSubClass()
 
 def _mk_defaults():
-    for conf in configurations.__class__.__dir__(configurations):
+    for conf in configurations.__dir__():
         if conf == 'EOF': break
         if conf.startswith("__"): continue
         if getattr(configurations, conf) is None:
@@ -77,7 +86,7 @@ def _mk_defaults():
                 __import__('_rc._defaults_', globals(), locals(), [''], 0),
                 conf.lower()
             )
-            _default = _getifsubclassfrom(_default, conf.lower())
+            _default = GetFromIfFromSubClass(_default, conf.lower())
             setattr(configurations, conf, _default)
 
 def _setfromrcfile(_file):
@@ -110,7 +119,7 @@ def _setfromrcfile(_file):
                     raise AttributeError(f"NoConfigurationAttribute : '{_attr}'")
                 _val = sub(_attr + "\s*:?[^=]*=\s*", "", ln)
                 _val = literal_eval(_val)
-                _val = _getifsubclassfrom(_val, _attr.lower())
+                _val = GetFromIfFromSubClass(_val, _attr.lower())
                 setattr(configurations, _attr, _val)
 
 def _read_ifhomerc():

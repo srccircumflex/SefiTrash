@@ -23,17 +23,11 @@
 # SOFTWARE.
 #
 
-
-
 from sys import argv
 from sys import path as sys_path
-from sys import platform as _sys_platform
-from re import sub as _re_sub
+from os import path
 
-if _sys_platform == "win32":
-    sys_path.append(_re_sub("\\\[^\\\]+$", "", __file__))
-else:
-    sys_path.append(_re_sub("/[^/]+$", "", __file__))
+sys_path.insert(0, path.dirname(__file__))
 
 if "--help" in argv: exit("NotImplementedError")
 if "-h" in argv: exit("NotImplementedError")

@@ -22,8 +22,8 @@
 #
 
 from time import sleep, time
-from os import get_terminal_size
 from sys import stdout
+from os import path
 
 from _rc._run import configurations
 from _rc._OBJrc import configurations as CNF
@@ -35,8 +35,16 @@ from sec.Proto import pf
 from prc.Bridge import BridgeFactory, PortFactory
 from sec.fscIO import pph
 from sec.fTools import ConsoleParser, print_manualpage, exp_full_trace
+from sec.consoleparser import ConsoleParser
+from sec.consoleparser import Exceptions
+from sec.consoleparser.argletters import STR, OPT, EOL, INT
+from sec import ansilib, consoleparser
 
-DEBUG = False
+consoleparser.ANSI_LOOKUP = CNF.PRINT_CONSOLE_ANSI
+consoleparser.MANUAL_PAGES_FILE = path.dirname(__file__) + '/../_rc/ConsoleParserInfo.txt'  # TODO
+consoleparser.MANUAL_PAGES_GZIP = False  # TODO
+
+DEBUG = 1  # TODO
 hasattr(configurations, "__file__")
 _RECEIVER_IP = None
 
@@ -129,46 +137,105 @@ class Console(Connect, PortFactory, BridgeFactory, ConsoleParser):
     def __init__(self):
         Connect.__init__(self)
         BridgeFactory.__init__(self, self.PIPE, self.BRIDGE)
-        ConsoleParser.__init__(self, {}, {})
         PortFactory.__init__(self, self.PIPE, self.BRIDGE)
 
-        self.intercept_options = {'--help': (print_manualpage, 'parser')}
+        ConsoleParser.__init__(self)
 
-        self.CMD_CONFIG = {
-            'get': (self.mks_GET, {
-                (1, 3): {'n?[lL]': (-1,), 'n?[fFaA]': (1, -1), 'n?(r{1,2}|R{1,2})': (1, -1), '--help': 0, '--List': 0,
-                         '--list': 0, '--tform': 2, '--tutc': -2, '--write': -2, '--enum': 0}, None: '-f'}),
-            'put': (self.mks_PUT, {(1, 3): {'n?[fFaA]': (1, -1), 'n?(r{1,2}|R{1,2})': (1, -1), '--help': 0}, None: '-f'}),
-            'log': (self.send_LOG, {1: {'[jt]': 2, '--help': 0}, None: '-t'}),
-            'cd': (self.mks_CHD, {1: {'[SDsdAa]': 1, '--help': 0}, None: '-a'}),
-            'pwd': (self.mks_PWD, {(1, 3): {'[pcuaL]{1,3}': 0, '--help': 0, '--list': 0}, None: '-p'}),
-            'ch': (self.send_change_login, {1: {'--login': 0, '--help': 0}}),
-            'reset': (self.send_reset, {(1, 4): {'[bBcCfFg]{1,4}': 0, '--help': 0}}),
-            'shutdown': (self.send_shutdown, {1: {None: 0, '--help': 0}}),
-            'kill': (self.send_kill, {1: {None: 0, '--help': 0}}),
-            '_err': (self.send_err, {1: {None: -2, '--help': 0}}),
-            'echo': (self.send_err, {1: {None: -2, '--help': 0}}),
-            '_pipe': (self.mnlpipei, {1: {None: -2, '--help': 0}}),
-            'clear': (self.clear_lns, {1: {None: 0, '--help': 0}}),
-            'help': (print_manualpage, {1: {'--help': 0}, None: '--help'}),
-            'logging': (LOGS_.CNSentry, {
-                1: {None: 0, '--sockclose': 0, '--sock': -2, '--io': 0, '--debug': 0, '--reset': 0, '--blackbox': 0,
-                    '--allS': 2, '--allF': 2, '--help': 0}}),
-            'exec': (self.EXEC, {1: {None: 2, '--help': 0}}),
-            'bypass': (self.bypass, {1: {None: 0, '--help': 0}}),
-            'exit': (exit, {1: {None: -2}}),
-            '0': (exit, {1: {None: -2}}),
-        }
+        ansi = ansilib.SGRInstance
+        colors = ansilib.Colors
+        aattr = ansilib.SGRAttr
+
+        _orange = colors.fg("orange")
+        DST = STR.label(ansi.wrap("dst", _orange))
+        SRC = STR.label(ansi.wrap("src", colors.green_fg))
+        N = INT.label(ansi.wrap("n", colors.cyan_fg))
+
+        self.add_command('get', self.mks_GET)
+        self.add_n_opts(1, 3)
+        self.add_command_opt_setsbox('n?[lL]', N | SRC & OPT)
+        self.add_command_opt_setsbox('n?[fFaA]', N | SRC, DST & OPT)
+        self.add_command_opt_setsbox('n?(r{1,2}|R{1,2})', N | SRC, DST & OPT)
+        self.add_command_opt_setsbox('--List')
+        self.add_command_opt_setsbox('--list')
+        self.add_command_opt_setsbox('--enum')
+        self.add_command_opt_setsbox('--tform', (STR & EOL).label(ansi.wrap("%format", colors.magenta_fg)))
+        self.add_command_opt_setsbox('--tutc', INT & OPT)
+        self.add_command_opt_setsbox('--write', DST & EOL & OPT)
+        self.add_default('-f')
+
+        self.add_command('put', self.mks_PUT)
+        self.add_n_opts(1, 3)
+        self.add_command_opt_setsbox('n?[fFaA]', N | SRC, DST & OPT)
+        self.add_command_opt_setsbox('n?(r{1,2}|R{1,2})', N | SRC, DST & OPT)
+        self.add_default('-f')
+
+        self.add_command('log', self.send_LOG)
+        self.add_command_opt_setsbox('[jt]', (STR & EOL).label(ansi.wrap("msg", colors.green_fg) + ansi.wrap("|", colors.fg("orange2")) + ansi.wrap("json", _orange)))
+        self.add_default('-t')
+
+        self.add_command('cd', self.mks_CHD)
+        self.add_command_opt_setsbox('[SDsdAa]', DST | SRC)
+        self.add_default('-a')
+
+        self.add_command('pwd', self.mks_PWD)
+        self.add_n_opts(1, 3)
+        self.add_command_opt_setsbox('[pcuaL]{1,3}')
+        self.add_command_opt_setsbox('--list')
+        self.add_default('-p')
+
+        self.add_command('ch', self.send_change_login)
+        self.add_command_opt_setsbox('--login')
+
+        self.add_command('reset', self.send_reset)
+        self.add_n_opts(1, 4)
+        self.add_command_opt_setsbox('[bBcCfFg]{1,4}')
+
+        self.add_command('shutdown', self.send_shutdown)
+
+        self.add_command('kill', self.send_kill)
+
+        self.add_command('_err', self.send_err)
+        self.add_command_opt_setsbox(None, STR & EOL & OPT)
+
+        self.add_command('echo', self.send_err)
+        self.add_command_opt_setsbox(None, STR & EOL & OPT)
+
+        self.add_command('_pipe', self.mnlpipei)
+        self.add_command_opt_setsbox(None, STR & EOL & OPT)
+
+        self.add_command('clear', self.clear_lns)
+
+        self.add_command('help', print_manualpage)
+
+        self.add_command('logging', LOGS_.CNSentry)
+        self.add_command_opt_setsbox('--sockclose')
+        self.add_command_opt_setsbox('--sock', INT & OPT)
+        self.add_command_opt_setsbox('--io')
+        self.add_command_opt_setsbox('--debug')
+        self.add_command_opt_setsbox('--reset')
+        self.add_command_opt_setsbox('--blackbox')
+        self.add_command_opt_setsbox('--allS', INT)
+        self.add_command_opt_setsbox('--allF', INT)
+
+        self.add_command('exec', self.EXEC)
+        self.add_command_opt_setsbox(None, STR & EOL)
+
+        self.add_command('bypass', self.bypass)
+        self.add_command_opt_setsbox('--switch')
+
+        self.add_command('exit', exit)
+        self.add_command_opt_setsbox(None, STR & EOL & OPT)
+
+        self.add_command('0', exit)
+        self.add_command_opt_setsbox(None, STR & EOL & OPT)
 
     @staticmethod
     def clear_lns():
-        n_lns = get_terminal_size()[1]
-        CNF.PCONT += '\n' * (n_lns + 1)
-        if CNF.SYS_PLATFORM == "w": CNF.PCONT += "!INFO: your console may does not support ANSI-Codes\n"
-        CNF.PCONT += '\x1b[%dA' % n_lns
+        print(ansilib.ControlSequence.TermReset())
 
     @staticmethod
-    def bypass():
+    def bypass(*_):
+        if not _: return
         if CNF._BYPASS and CNF._BYPASSED.name == "<ByPass>":
             print("\n", file=CNF._BYPASSED)
             CNF._BYPASSED = stdout
@@ -203,11 +270,26 @@ class Console(Connect, PortFactory, BridgeFactory, ConsoleParser):
                     inp = input(f"{(_rcode[0] if (_header := self.BRIDGE.header) and (_rcode := _header.option_list) else '')}] : ")
                 if inp.strip() in ('exit', 'done', '0', 'quit', 'x', 'X'): raise EOFError(inp)
 
-                if opts := self.pars_string(inp):
-                    if None in opts[0]:
-                        self.func.__call__(*opts[0][None])
-                    elif opts_args := self.get_merged():
-                        self.func.__call__(opts_args[0], *opts_args[1])
+                try:
+                    if opts := self.pars_and_verify_string(inp):
+                        if None in opts[0]:
+                            self.func.__call__(*opts[0][None])
+                        elif opts_args := self.get_merged():
+                            self.func.__call__(opts_args[0], *opts_args[1])
+                        elif opts_args is None:
+                            self.func.__call__()
+                except Exceptions.ParsError as e:
+                    print(self.get_look_up(e))
+                except Exceptions.NoInputError as e:
+                    pass
+                except Exceptions.UnknownCommandError as e:
+                    print(self.get_look_up(e, full=False))
+                except Exceptions.Interception as e:
+                    print(e)
+                    continue
+                except Exceptions.ParserException as e:
+                    print(e)
+                    continue
 
                 if CNF._BYPASSED.name == "<ByPass>":
                     rcode = f"[{(_rcode[0] if (_header := self.BRIDGE.header) and (_rcode := _header.option_list) else '')}]"

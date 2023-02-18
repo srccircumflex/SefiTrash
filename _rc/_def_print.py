@@ -21,227 +21,190 @@
 # SOFTWARE.
 #
 
+
+from sec.ansilib import *
+
+
+class _NamedDict(dict):
+    def __init__(self, **kwargs):
+        dict.__init__(self, **kwargs)
+
+    def __getattr__(self, item):
+        if self.__contains__(item):
+            return self.__getitem__(item)
+        return super(_NamedDict, self).__getattr__(item)
+
+
 class ansi:
-    print_timeout_bar = ("\x1b[s[▏  ]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[▎  ]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[▍  ]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[▌  ]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[▋  ]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[▊  ]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[▉  ]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[█  ]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[█▏ ]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[█▎ ]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[█▍ ]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[█▌ ]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[█▋ ]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[█▊ ]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[█▉ ]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[██▏]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[██▍]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[██▋]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[██▉]\x1b[1B\x1b[5D",
-                         '\b'*5+"\x1b[u[███]\x1b[1B\x1b[5D",)
 
-    class print_icos:
-        sharp = "##"
-        warn = "\x1b[43;1;31m[⚠ ]\x1b[0m"
-        tox = "☣ "
-        x = "\x1b[31m[✕ ]\x1b[0m"
-        y = "\x1b[1;32m🗸 \x1b[0m"
-        bridge_on = "⎇ "
-        bridge_off = "→ "
-        on = "⏽ "
-        off = "⏼ "
-        standby = "⏻ "
-        shutdown = "⓿ "
-        close = "◯●"
-        recycle = "♽ "
-        broken_pipe = "↛ "
-        i_pipe = "↤ "
-        o_pipe = "↦ "
-        kill = "⌁⌁⌁"
-        pings = "···"
-        listen = "@@"
-        key = "\x1b[1m🗝 \x1b[0m"
-        exclam = "!!"
-        exclam2 = "\x1b[1;31m!!\x1b[0m"
-        quest = "??"
-        err = "\x1b[31mFAIL\x1b[0m"
-        call = "\x1b[46mCALL\x1b[0m"
-        cain = "\x1b[1m⛓ \x1b[0m"
-        bind = "\x1b[1m⚯ \x1b[0m"
-        stacks = "⛁ "
-        wstacks = "\x1b[30;47m⛁ \x1b[0m"
-        bstacks = "\x1b[37;40m⛁ \x1b[0m"
-        lswush = "\x1b[1;36m⮨ \x1b[0m"
-        mail = "\x1b[1;4;36m ✉ \x1b[0m"
-        interpro = "\x1b[91m⮒ \x1b[0m"
-        intercon = "\x1b[4;91m ⥆ \x1b[0m"
-        drop = "\x1b[41mDROP\x1b[0m"
-        rc = "\x1b[1;43mRC\x1b[0m"
+    def __init__(self, as_blueprint: bool = False):
+        self.SGR = SelectGraphicRendition(_disabled=as_blueprint, raise_initerr=False, ignore_initerr=False)
+        Colors.yellow_bg = Colors.bg("yellow2")
+        Colors.yellow_fg = Colors.fg("orange2")
+        self.CS = ControlSequence()
+        self.print_timeout_bar = ("[▏  ]",
+                                  "\b" * 7 + "[▎  ]",
+                                  "\b" * 7 + "[▍  ]",
+                                  "\b" * 7 + "[▌  ]",
+                                  "\b" * 7 + "[▋  ]",
+                                  "\b" * 7 + "[▊  ]",
+                                  "\b" * 7 + "[▉  ]",
+                                  "\b" * 7 + "[█  ]",
+                                  "\b" * 7 + "[█▏ ]",
+                                  "\b" * 7 + "[█▎ ]",
+                                  "\b" * 7 + "[█▍ ]",
+                                  "\b" * 7 + "[█▌ ]",
+                                  "\b" * 7 + "[█▋ ]",
+                                  "\b" * 7 + "[█▊ ]",
+                                  "\b" * 7 + "[█▉ ]",
+                                  "\b" * 7 + "[██▏]",
+                                  "\b" * 7 + "[██▍]",
+                                  "\b" * 7 + "[██▋]",
+                                  "\b" * 7 + "[██▉]",
+                                  "\b" * 7 + "[███]",)
 
-    print_intervention_onoff = ('\x1b[?5l', '\x1b[?5h')
-    print_intervention_flush = ['\x1b[?5l', '\x1b[?5h', '\x1b[?5l', '\x1b[?5h']
-    print_intervention_error = '\x1b[7;1m %s \x1b[0m'
+        self.print_intervention_onoff = (self.CS.Screen.InvertOff(), self.CS.Screen.InvertOn())
+        self.print_intervention_flush = [
+            self.CS.Screen.InvertOff(),
+            self.CS.Screen.InvertOn(),
+            self.CS.Screen.InvertOff(),
+            self.CS.Screen.InvertOn()
+        ]
+        self.print_intervention_error = self.SGR.wrap(" %s ", SGRAttr.bold, SGRAttr.invert)
 
-    # ifdef _noncall
-    stream_format = {
-        'fmt': "[%(asctime)-8s%(_ms)s] %(ansi_pr)s%(ansi_lv)-12s  (%(name)s) [%(ico)-2s] %(ansi_msg)s",
-        'datefmt': "%H:%M:%S"}
+        self.print_icos = _NamedDict(
+            sharp="##",
+            warn=self.SGR.wrap("[⚠ ]", SGRAttr.bold, Colors.yellow_bg, Colors.red_fg),
+            tox="☣ ",
+            x=self.SGR.wrap("[✕ ]", Colors.red_fg),
+            y=self.SGR.wrap("🗸 ", Colors.green_fg),
+            bridge_on="⎇ ",
+            bridge_off="→ ",
+            on="⏽ ",
+            off="⏼ ",
+            standby="⏻ ",
+            shutdown="⓿ ",
+            close="◯●",
+            recycle="♽ ",
+            broken_pipe="↛ ",
+            i_pipe="↤ ",
+            o_pipe="↦ ",
+            kill="⌁⌁⌁",
+            pings="···",
+            listen="@@",
+            key=self.SGR.wrap("🗝 ", SGRAttr.bold),
+            exclam="!!",
+            exclam2=self.SGR.wrap("!!", SGRAttr.bold, Colors.red_fg),
+            quest="??",
+            err=self.SGR.wrap("FAIL", Colors.red_fg),
+            call=self.SGR.wrap("CALL", Colors.cyan_fg),
+            cain=self.SGR.wrap("⛓ ", SGRAttr.bold),
+            bind=self.SGR.wrap("⚯ ", SGRAttr.bold),
+            stacks="⛁ ",
+            wstacks=self.SGR.wrap("⛁ ", Colors.black_fg, Colors.white_bg),
+            bstacks=self.SGR.wrap("⛁ ", Colors.black_bg, Colors.white_fg),
+            lswush=self.SGR.wrap("⮨ ", Colors.cyan_fg, SGRAttr.bold),
+            mail=self.SGR.wrap(" ✉ ", Colors.cyan_fg, SGRAttr.bold, SGRAttr.underline),
+            interpro=self.SGR.wrap("⮒ ", Colors.fg("firebrick2")),
+            intercon=self.SGR.wrap(" ⥆ ", Colors.fg("firebrick2"), SGRAttr.underline),
+            drop=self.SGR.wrap("DROP", Colors.red_bg),
+            rc=self.SGR.wrap("RC", SGRAttr.bold, Colors.yellow_bg),
+        )
 
-    class msgansis:
-        yellow = '\x1b[33m'
-        red = '\x1b[31m'
-        bold = '\x1b[1m'
-        underline = '\x1b[4m'
+        # ifdef _noncall
+        stream_format = {
+            'fmt': "[%(asctime)-8s%(_ms)s] %(ansi_pr)s%(ansi_lv)-12s  (%(name)s) [%(ico)-2s] %(ansi_msg)s",
+            'datefmt': "%H:%M:%S"}
 
-    level_to_ansi_prefix = {
-        61: '\x1b[1;31m',
-        60: '\x1b[31m',
-        55: '\x1b[43;1;31m',
-        54: '\x1b[43;31m',
-        50: '\x1b[4;1;31m',
-        45: '\x1b[1;31m',
-        40: '\x1b[1;31m',
-        35: '\x1b[1;33m',
-        30: '\x1b[33m',
-        25: '\x1b[1;36m',
-        20: '\x1b[36m',
-        15: '',
-        10: '',
-        5: '',
-        0: ''
-    }
-    level_to_ansi_name = {
-        61: 'ALERT\x1b[0m',
-        60: 'FATAL\x1b[0m',
-        55: 'COUNTER\x1b[0m',
-        54: 'PREVENT\x1b[0m',
-        50: 'CRITICAL\x1b[0m',
-        45: 'DEPTHERR\x1b[0m',
-        40: 'ERROR\x1b[0m',
-        35: 'HARD\x1b[0m',
-        30: 'WARNING\x1b[0m',
-        25: 'INIT\x1b[0m',
-        20: 'INFO\x1b[0m',
-        15: 'DATA-I\x1b[0m',
-        10: 'DEBUG\x1b[0m',
-        5: 'DATA-O\x1b[0m',
-        0: 'NULL\x1b[0m'
-    }
-    # endif _noncall
+        self.msgansis = _NamedDict(
+            yellow=self.SGR.get(Colors.yellow_fg),
+            red=self.SGR.get(Colors.red_fg),
+            bold=self.SGR.get(SGRAttr.bold),
+            underline=self.SGR.get(SGRAttr.underline)
+        )
 
-    print_stream_args = (stream_format, msgansis, level_to_ansi_prefix, level_to_ansi_name)
+        level_to_ansi_prefix = {
+            61: self.SGR.get(SGRAttr.bold, Colors.red_fg),
+            60: self.SGR.get(Colors.red_fg),
+            55: self.SGR.get(SGRAttr.bold, Colors.red_fg, Colors.yellow_bg),
+            54: self.SGR.get(Colors.red_fg, Colors.yellow_bg),
+            50: self.SGR.get(SGRAttr.bold, SGRAttr.underline, Colors.red_fg),
+            45: self.SGR.get(SGRAttr.bold, Colors.red_fg),
+            40: self.SGR.get(SGRAttr.bold, Colors.red_fg),
+            35: self.SGR.get(SGRAttr.bold, Colors.yellow_fg),
+            30: self.SGR.get(Colors.yellow_fg),
+            25: self.SGR.get(SGRAttr.bold, Colors.cyan_fg),
+            20: self.SGR.get(Colors.cyan_fg),
+            15: '',
+            10: '',
+            5: '',
+            0: ''
+        }
+        _r = self.SGR.get(SGRAttr.reset)
+        level_to_ansi_name = {
+            61: 'ALERT' + _r,
+            60: 'FATAL' + _r,
+            55: 'COUNTER' + _r,
+            54: 'PREVENT' + _r,
+            50: 'CRITICAL' + _r,
+            45: 'DEPTHERR' + _r,
+            40: 'ERROR' + _r,
+            35: 'HARD' + _r,
+            30: 'WARNING' + _r,
+            25: 'INIT' + _r,
+            20: 'INFO' + _r,
+            15: 'DATA-I' + _r,
+            10: 'DEBUG' + _r,
+            5: 'DATA-O' + _r,
+            0: 'NULL' + _r
+        }
+        # endif _noncall
+
+        self.print_stream_args = (stream_format, self.msgansis, level_to_ansi_prefix, level_to_ansi_name)
+
+        self.print_console_ansi = True
+
 
 class ordin:
 
+    def __init__(self):
+        pass
+
     print_timeout_bar = (["·" for _ in range(20)])
 
-    class print_icos:
-        sharp = "##"
-        warn = "W!"
-        tox = "TX"
-        x = "X!"
-        y = "**"
-        bridge_on = "|+"
-        bridge_off = "——"
-        on = " 1"
-        off = " 0"
-        standby = "-0"
-        shutdown = "00"
-        close = "00"
-        recycle = "wr"
-        broken_pipe = "\\-"
-        i_pipe = "<—"
-        o_pipe = "—>"
-        kill = "KILL"
-        pings = "···"
-        listen = "@@"
-        key = "++"
-        exclam = "!!"
-        exclam2 = "!!"
-        quest = "??"
-        err = "FAIL"
-        call = "CALL"
-        cain = "++"
-        drop = "DROP"
-        rc = "RC"
-        stacks = "PH"
-        wstacks = "WH"
-        bstacks = "BL"
-
-    print_intervention_onoff = ('', '\n____?\n')
-    print_intervention_flush = ['S', 'U', 'C', 'C', 'E', 'S', 'S', '!\n']
-    print_intervention_error = '\n____ERROR: %s\n'
-
-    # ifdef _noncall
-    stream_format = {
-            'fmt': "[%(asctime)-8s%(_ms)s] %(levelname)-8s  (%(name)s) [%(ico)-2s] %(message)s",
-            'datefmt': "%H:%M:%S"}
-    class msgansis:
-        pass
-    level_to_ansi_name = dict()
-    level_to_ansi_prefix = dict()
-    # endif _noncall
-
-    print_stream_args = (stream_format, msgansis, level_to_ansi_prefix, level_to_ansi_name)
-
-class utf:
-    print_timeout_bar = ("[▏  ]",
-                         "\b\b\b\b\b[▎  ]",
-                         "\b\b\b\b\b[▍  ]",
-                         "\b\b\b\b\b[▌  ]",
-                         "\b\b\b\b\b[▋  ]",
-                         "\b\b\b\b\b[▊  ]",
-                         "\b\b\b\b\b[▉  ]",
-                         "\b\b\b\b\b[█  ]",
-                         "\b\b\b\b\b[█▏ ]",
-                         "\b\b\b\b\b[█▎ ]",
-                         "\b\b\b\b\b[█▍ ]",
-                         "\b\b\b\b\b[█▌ ]",
-                         "\b\b\b\b\b[█▋ ]",
-                         "\b\b\b\b\b[█▊ ]",
-                         "\b\b\b\b\b[█▉ ]",
-                         "\b\b\b\b\b[██▏]",
-                         "\b\b\b\b\b[██▍]",
-                         "\b\b\b\b\b[██▋]",
-                         "\b\b\b\b\b[██▉]",
-                         "\b\b\b\b\b[███]",)
-
-    class print_icos:
-        sharp = "##"
-        warn = "[⚠ ]"
-        tox = "☣ "
-        x = "[✕ ]"
-        y = "🗸 "
-        bridge_on = "⎇ "
-        bridge_off = "→ "
-        on = "⏽ "
-        off = "⏼ "
-        standby = "⏻ "
-        shutdown = "⓿ "
-        close = "◯●"
-        recycle = "♽ "
-        broken_pipe = "↛ "
-        i_pipe = "↤ "
-        o_pipe = "↦ "
-        kill = "⌁⌁⌁"
-        pings = "···"
-        listen = "@@"
-        key = "🗝 "
-        exclam = "!!"
-        exclam2 = "!!"
-        quest = "??"
-        err = "FAIL"
-        call = "CALL"
-        cain = "⛓ "
-        drop = "DROP"
-        rc = "RC"
-        stacks = "⛁ "
-        wstacks = "⛁ "
-        bstacks = "⛁ "
-
+    print_icos = _NamedDict(
+        sharp="##",
+        warn="W!",
+        tox="TX",
+        x="X!",
+        y="**",
+        bridge_on="|+",
+        bridge_off="——",
+        on=" 1",
+        off=" 0",
+        standby="-0",
+        shutdown="00",
+        close="00",
+        recycle="wr",
+        broken_pipe="\\-",
+        i_pipe="<—",
+        o_pipe="—>",
+        kill="KILL",
+        pings="···",
+        listen="@@",
+        key="++",
+        exclam="!!",
+        exclam2="!!",
+        quest="??",
+        err="FAIL",
+        call="CALL",
+        cain="++",
+        drop="DROP",
+        rc="RC",
+        stacks="PH",
+        wstacks="WH",
+        bstacks="BL",
+    )
     print_intervention_onoff = ('', '\n____?\n')
     print_intervention_flush = ['S', 'U', 'C', 'C', 'E', 'S', 'S', '!\n']
     print_intervention_error = '\n____ERROR: %s\n'
@@ -251,8 +214,7 @@ class utf:
         'fmt': "[%(asctime)-8s%(_ms)s] %(levelname)-8s  (%(name)s) [%(ico)-2s] %(message)s",
         'datefmt': "%H:%M:%S"}
 
-    class msgansis:
-        pass
+    msgansis = _NamedDict()
 
     level_to_ansi_name = dict()
     level_to_ansi_prefix = dict()
@@ -260,22 +222,91 @@ class utf:
 
     print_stream_args = (stream_format, msgansis, level_to_ansi_prefix, level_to_ansi_name)
 
+    print_console_ansi = False
 
-for _attr in list(ansi.msgansis.__dict__):
-    if _attr.startswith('__'): continue
-    setattr(utf.msgansis, _attr, '')
-    setattr(ordin.msgansis, _attr, '')
 
-for _attr in list(ansi.print_icos.__dict__):
-    if _attr.startswith('__'): continue
-    if not hasattr(utf.print_icos, _attr):
-        setattr(utf.print_icos, _attr, '')
-    if not hasattr(ordin.print_icos, _attr):
-        setattr(ordin.print_icos, _attr, '')
+class utf:
 
-for _attr in list(ansi.__dict__):
-    if _attr.startswith('__'): continue
-    if not hasattr(utf.print_icos, _attr):
-        setattr(utf.print_icos, _attr, '')
-    if not hasattr(ordin.print_icos, _attr):
-        setattr(ordin.print_icos, _attr, '')
+    def __init__(self):
+        pass
+
+    print_timeout_bar = ("[▏  ]",
+                         "\b" * 7 + "[▎  ]",
+                         "\b" * 7 + "[▍  ]",
+                         "\b" * 7 + "[▌  ]",
+                         "\b" * 7 + "[▋  ]",
+                         "\b" * 7 + "[▊  ]",
+                         "\b" * 7 + "[▉  ]",
+                         "\b" * 7 + "[█  ]",
+                         "\b" * 7 + "[█▏ ]",
+                         "\b" * 7 + "[█▎ ]",
+                         "\b" * 7 + "[█▍ ]",
+                         "\b" * 7 + "[█▌ ]",
+                         "\b" * 7 + "[█▋ ]",
+                         "\b" * 7 + "[█▊ ]",
+                         "\b" * 7 + "[█▉ ]",
+                         "\b" * 7 + "[██▏]",
+                         "\b" * 7 + "[██▍]",
+                         "\b" * 7 + "[██▋]",
+                         "\b" * 7 + "[██▉]",
+                         "\b" * 7 + "[███]",)
+
+    print_icos = _NamedDict(
+        sharp="##",
+        warn="[⚠ ]",
+        tox="☣ ",
+        x="[✕ ]",
+        y="🗸 ",
+        bridge_on="⎇ ",
+        bridge_off="→ ",
+        on="⏽ ",
+        off="⏼ ",
+        standby="⏻ ",
+        shutdown="⓿ ",
+        close="◯●",
+        recycle="♽ ",
+        broken_pipe="↛ ",
+        i_pipe="↤ ",
+        o_pipe="↦ ",
+        kill="⌁⌁⌁",
+        pings="···",
+        listen="@@",
+        key="🗝 ",
+        exclam="!!",
+        exclam2="!!",
+        quest="??",
+        err="FAIL",
+        call="CALL",
+        cain="⛓ ",
+        drop="DROP",
+        rc="RC",
+        stacks="⛁ ",
+        wstacks="⛁ ",
+        bstacks="⛁ "
+    )
+    print_intervention_onoff = ('', '\n____?\n')
+    print_intervention_flush = ['S', 'U', 'C', 'C', 'E', 'S', 'S', '!\n']
+    print_intervention_error = '\n____ERROR: %s\n'
+
+    # ifdef _noncall
+    stream_format = {
+        'fmt': "[%(asctime)-8s%(_ms)s] %(levelname)-8s  (%(name)s) [%(ico)-2s] %(message)s",
+        'datefmt': "%H:%M:%S"}
+
+    msgansis = _NamedDict()
+
+    level_to_ansi_name = dict()
+    level_to_ansi_prefix = dict()
+    # endif _noncall
+
+    print_stream_args = (stream_format, msgansis, level_to_ansi_prefix, level_to_ansi_name)
+
+    print_console_ansi = False
+
+
+_base = ansi(True)
+
+for __attr in ('msgansis', 'print_icos'):
+    for _attr in getattr(_base, __attr):
+        getattr(utf, __attr).setdefault(_attr, '')
+        getattr(ordin, __attr).setdefault(_attr, '')

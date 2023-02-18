@@ -618,7 +618,7 @@ class DirHeaders:
         return self.__str__().encode(CNF.SRM_ENC, errors="replace")
 
 
-def print_manualpage(cmd: str = None, parser: ConsoleParser = None):
+def print_manualpage(cmd: str = 'help', parser: ConsoleParser = None):
     if parser:
         cmd = parser.command
     with open(CNF.MAIN_ROOT + '/_rc/.console.manual') as f:
@@ -653,3 +653,6 @@ def getlocalip(DNS:str="8.8.8.8"):
 
 def subwinpath(path: str):
     return sub(":/?", ":/", sub("\\\+", "/", path))
+
+def subwininval(path: str):
+    return sub('(?<!^\w)[\\\\:*?<>|"]', "_", path)

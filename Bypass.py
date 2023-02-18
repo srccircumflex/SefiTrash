@@ -24,16 +24,13 @@
 #
 
 
+from re import sub, search
 from sys import argv
 from sys import path as sys_path
-from sys import platform as _sys_platform
-from re import sub, search
+from os import path
 
+sys_path.insert(0, path.dirname(__file__))
 
-if _sys_platform == "win32":
-    sys_path.append(sub("\\\[^\\\]+$", "", __file__))
-else:
-    sys_path.append(sub("/[^/]+$", "", __file__))
 
 from _rc import configurations as CNF
 import _main

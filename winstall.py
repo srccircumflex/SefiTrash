@@ -23,8 +23,12 @@
 
 
 from re import sub as _re_sub
+from sys import platform
 
 if __name__ == "__main__":
+
+    if platform != "win32":
+        raise NotImplementedError(f"{platform=}")
 
     try:
 

@@ -32,7 +32,7 @@ from functools import lru_cache
 
 from _rc import configurations as CNF
 
-from sec.fTools import DefIfEndIf, subwinpath
+from sec.fTools import DefIfEndIf, subwinpath, subwininval
 from sec.Proto import StreamHeader, ParseStreamHeader, pm
 from sec.Loggers import LOGS_, log_bad_data
 from sec.vTools import mk_login, _rcUDELUser, _rcDELUser
@@ -531,13 +531,6 @@ class Verification(SimpleFireWall):
 ########################################################################################################################
 
 
-def realpath(path: str):
-    _realpath = os_path.realpath(path)
-    if CNF.SYS_PLATFORM == "w":
-        return subwinpath(_realpath)
-    return _realpath
-
-
 class SecurePath:
 
     def __init__(self, client_cache:dict):
@@ -572,20 +565,20 @@ class SecurePath:
                 conf[1] = conf[1].lower()
                 if 's' in conf[1] and 'b' in conf[1]:
                     if conf[2].endswith('//'):
-                        self.SRCDST['src']['black'] += '^' + escape(realpath(conf[2])) + '(/[^/]*$|$)|'
-                    else: self.SRCDST['src']['black'] += '^' + escape(realpath(conf[2])) + '|'
+                        self.SRCDST['src']['black'] += '^' + escape(self.realpath(conf[2])) + '(/[^/]*$|$)|'
+                    else: self.SRCDST['src']['black'] += '^' + escape(self.realpath(conf[2])) + '|'
                 if 's' in conf[1] and 'w' in conf[1]:
                     if conf[2].endswith('//'):
-                        self.SRCDST['src']['white'] += '^' + escape(realpath(conf[2])) + '(/[^/]*$|$)|'
-                    else: self.SRCDST['src']['white'] += '^' + escape(realpath(conf[2])) + '|'
+                        self.SRCDST['src']['white'] += '^' + escape(self.realpath(conf[2])) + '(/[^/]*$|$)|'
+                    else: self.SRCDST['src']['white'] += '^' + escape(self.realpath(conf[2])) + '|'
                 if 'p' in conf[1] and 'b' in conf[1]:
                     if conf[2].endswith('//'):
-                        self.SRCDST['dst']['black'] += '^' + escape(realpath(conf[2])) + '(/[^/]*$|$)|'
-                    else: self.SRCDST['dst']['black'] += '^' + escape(realpath(conf[2])) + '|'
+                        self.SRCDST['dst']['black'] += '^' + escape(self.realpath(conf[2])) + '(/[^/]*$|$)|'
+                    else: self.SRCDST['dst']['black'] += '^' + escape(self.realpath(conf[2])) + '|'
                 if 'p' in conf[1] and 'w' in conf[1]:
                     if conf[2].endswith('//'):
-                        self.SRCDST['dst']['white'] += '^' + escape(realpath(conf[2])) + '(/[^/]*$|$)|'
-                    else: self.SRCDST['dst']['white'] += '^' + escape(realpath(conf[2])) + '|'
+                        self.SRCDST['dst']['white'] += '^' + escape(self.realpath(conf[2])) + '(/[^/]*$|$)|'
+                    else: self.SRCDST['dst']['white'] += '^' + escape(self.realpath(conf[2])) + '|'
             except StopIteration:
                 break
 
@@ -601,8 +594,23 @@ class SecurePath:
         elif self.user:
             LOGS_.path.logg(25, CNF.STRINGS.SECUREPATH % self.user.decode(CNF.LOC_ENC), ip=self.user.decode(CNF.LOC_ENC), mt=self.__init__, ico=CNF.PRINT_ICOS.stacks)
 
+    @staticmethod
+    def realpath(path: str):
+        _realpath = os_path.realpath(path)
+        if CNF.SYS_PLATFORM == "w":
+            return subwinpath(_realpath)
+        return _realpath
+
+    @staticmethod
+    def realdst(path: str):
+        if path is False:
+            return False
+        if CNF.SYS_PLATFORM == "w":
+            return subwininval(path)
+        return path
+
     def _parse_path(self, path: str, key: str) -> str:
-        return realpath(
+        return self.realpath(
             (CNF.HOME_PATH + path[3:] if path.startswith('~//') else
              self.SRCDST[key]['root'] + path[3:] if path.startswith('#//') else
              self.SRCDST[key]['current'] + path if not path.startswith(CNF.SYS_ROOT) else
@@ -643,7 +651,7 @@ class SecurePath:
         return False
 
     def dst_path(self, path: str) -> [str, False]:
-        path = self._parse_path(path, 'dst')
+        path = self.realdst(self._parse_path(path, 'dst'))
         if not access(sub('/[^/]*$', '/', path), self.write_dir):
             LOGS_.path.logg(30, path, mt=self.dst_path, ico=CNF.PRINT_ICOS.stacks)
             return False
@@ -659,14 +667,14 @@ class SecurePath:
         return False
 
     def dst_a(self, path: str) -> [str, False]:
-        path = self._legal(self._parse_path(path, 'dst'), 'dst')
+        path = self.realdst(self._legal(self._parse_path(path, 'dst'), 'dst'))
         if path:
             makedirs(sub('/[^/]*$', '/', path), 0o770, exist_ok=True)
             return path
         return False
 
     def dst_secure_a(self, path: str) -> [str, False]:
-        path = self._legal(self._parse_path(path, 'dst'), 'dst')
+        path = self.realdst(self._legal(self._parse_path(path, 'dst'), 'dst'))
         if path:
             if os_path.lexists(path):
                 LOGS_.path.logg(30, path, mt=self.dst_secure_a, ico=CNF.PRINT_ICOS.stacks)

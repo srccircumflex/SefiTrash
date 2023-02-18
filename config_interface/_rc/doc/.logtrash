@@ -1,0 +1,186 @@
+
+                         SefiTrash - a Secure File Transfer Shell written in Python         
+
+DESCRIPTION
+
+  The Python project SefiTrash is developed for secure and convenient transfer of files between
+  two terminals with the character of a login server.
+  Transmitted commands are processed by Python code and provide indirect access to the file system,
+  subject to freely definable restrictions. The execution of system or shell commands is not
+  implemented.
+
+
+CONFIGURATION
+
+  In order to offer the user the greatest possible flexibility and to be able to adapt
+  SefiTrash to the respective needs, a mass of configurable values is available.
+  These are sorted in the config interface `Config-tk.py' into three areas and different
+  sections, furthermore dependencies are resolved and the entered values are checked.
+
+  SefiTrash is, provided the SSL configuration (`SSL_*') is fulfilled, functional with the
+  default values. However, to add a user on the host side, the login files must be created on the
+  host's system and there must be a line with the user name in `BOARD_USERS'. After that, the
+  pairing process can be provided by `Host.py'; this is initiated by `Client.py'.
+
+
+	Quick start
+
+  For the accurate creation of the SSL files, interfaces are provided in `Config-tk.py' and
+  `Config-cli.py'. The interface to add a user is also provided in `Config-tk.py' and
+  `Config-cli.py'.
+
+
+	Configuration sources
+
+  At the beginning of the program start all values in "_rc/configurations" which are `None'
+  are filled with default values, that they are `None' is foreseen. Before this process there is
+  the possibility to predefine the values via the command line, for this the following syntax is
+  available:
+
+	  Program Attribute Value Attribute Value ...
+
+  To convert the input into a valid Python type, literal_eval() of the ast module is used,
+  therefore it is usually necessary to express (wrap) strings when entering them via the command
+  line as follows:
+
+	  '"string"' or "'string'".
+
+  When defining more complex data types, spaces outside of strings should be avoided.
+  Attributes are case-insensitive.
+
+  In the next instance `RC_FILE_LV1' is evaluated. If the file ".sefitrarc.txt" under Windows
+  or ".sefitrarc" under Linux is located in the home directory, this value is overwritten.
+
+  Finally, user-specific configuration files are searched for in the "etc" folder. All files
+  are considered whose names begin with the following pattern:
+
+	  username.
+
+  Thus for each system user a general configuration file can be provided in the respective home
+  directory and a SefiTrash user dependent configuration file can be present in the directory
+  "etc". The programs are started with the following input:
+
+	  Program USER "'username'"
+
+  If ".sefitrarc.txt" respectively ".sefitrarc" is not in the respective home directory it is
+  possible to define `RC_FILE_LV1' via the command line:
+
+	  Program RC_FILE_LV1 "'path/to/file'"
+
+
+CONFIG INTERFACES
+
+	Manual pages
+
+  For the description of a sector or a specific configuration attribute, the manual page can be
+  accessed by <left-clicking> on the respective label in `Config-tk.py' or by `Config-cli.py'.
+
+
+	Ranges and sources
+
+  The scopes can be selected in `Config-tk.py' in the top menu bar and specify the scope of
+  the attributes (host attributes/client attributes). Universal attributes are always pressing
+  and cannot be deselected, these are evaluated by both `Host.py' and `Client.py'; this must be
+  taken into mind when creating a configuration file for both parts.
+  The lateral programs `Bypass.py', `Intervene.py', and `LogStream.py' should get their
+  configuration from the same source as the respective communication partner `Host.py' or
+  `Client.py'. The interactions of the individual programs are explained in the SCRIPTS chapter.
+
+
+	Config-tk.py - Bound keys
+
+  |Key            |Widgets        |Function
+  |---------------|---------------|---------------------------------
+  |<Tab>          |Entrys         |Default Navigation,
+  |               |               |Entry validation
+  |<Shift-Tab>    |Entrys         |Default navigation backward,
+  |               |               |Entry validation
+  |<Leftclick>    |Labels         |Opens the associated manual page
+  |<Rightclick>   |Labels         |Values menu
+  |<Ctrl-F>       |ROOT           |Padding with default values
+  |               |               |(Same as [VALUES] -> -Fill-)
+  |<Ctrl-C>       |ROOT           |Input validation of all values.
+  |               |               |(Same as [VALUES] -> -Consume-)
+  |<Ctrl-S>       |ROOT           |Write out
+  |<Up>           |Left cell      |Scrolls up one unit
+  |<Down>         |Left cell      |Scrolls down one unit
+  |<PgUp>         |Left cell      |Scrolls up one page
+  |<PgDn>         |Left cell      |Scrolls down one page
+  |                |                      |
+  |<Ctrl-Leftclick> |Tab-UserBoard.username-entry |Opens a window to be able to create this
+                                                   user's login
+
+
+	Config-tk.py - menu line
+
+  The values of all configurations of the current section can be set (-Defauts-/-None-),
+  filled with default values (-Fill-) or consumed (-Consume-) via the [Values] menu. The [File]
+  menu can be used to set values of an existing file (-Source-) or to fill the values of the
+  interface with those of a file (-Fill-) and to create a configuration file (-Write-).
+
+
+	Config-tk.py - Tabs
+
+  Additional tabs are provided for more comprehensive configuration and support.
+
+
+SCRIPTS
+
+	Host.py
+
+  This script starts the listening process. When a connection is established by `Client.py'
+  and the user is verified, the bridge and sender daemon threads are initialized and started.
+  These run for the period of the existing connection or until `Host.py' terminates. `Host.py'
+  can be terminated by <Ctrl-C> in the terminal, by the client or by `Intervene.py' (exit()).
+
+
+	Client.py
+
+  This script establishes the connection to `Host.py' and provides the command line interface.
+
+
+	LogStream.py
+
+  This script is used to get the log messages from `Host.py' or `Client.py' if configured.
+  Tip: If both `Host.py' and `Client.py' are running on the same device and the background stream
+  is configured for both, an error will occur when starting the second script, because the
+  address of the socket is already in use. A quick solution, if no configuration file is used, is
+  to run `Client.py' with the following command line:
+
+	  Client.py inspect_port 2222
+
+
+	Intervene.py
+
+  This script provides access to `Host.py' in runtime (if configured). Any input not processed
+  by `Intervene.py' will be sent to `Host.py' via a socket connection and executed there by
+  exec(). Run `help` inside `Intervene.py' for more information.
+
+
+	Bypass.py
+
+  This script interacts with `Client.py' and provides the possibility to control `Client.py'
+  outside its command line interface. `Bypass.py' supports input through command line arguments:
+
+	  Bypass.py [Config-attribute Value ...] Command
+
+  The exit code is the last status code, which is similar to the HTTP status codes.
+  See "sec/Proto.py" for an overview of the used codes. Note the 8-bit overflow (404 -> 148).
+  If the response does not contain a status code, 0 is used. If the SCRIPT is aborted by
+  <Ctrl-C> it is 1.
+
+
+BUGS
+
+  Please report bugs to srccircumflex@outlook.com
+
+
+AUTHOR
+
+  Adrian F. Hoefflin
+
+
+
+0.7.2                                              2022-01-07                                     [srccircumflex]
+
+

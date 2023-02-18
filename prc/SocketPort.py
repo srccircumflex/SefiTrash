@@ -181,17 +181,19 @@ class SockPort(Thread, Verification, SecureCall):
 
     # //022//  ///
     def t_kill(self, *_, **__):
-        for _attr in CNF.__dir__():
-            if _attr.startswith("_"): continue
-            if _attr == "CNF_PROX" or _attr == "BYPASSED": continue
-            setattr(CNF._CNF_PROX, _attr,
-                    getattr(CNF, _attr))
-        if self.client_is_verified(): self.client_cache.pop(self.client_ip)
-        LOGS_.kill.logg(35, CNF.STRINGS.KILL_THREAD, ico=CNF.PRINT_ICOS.kill, ip=self.client_ip, cache=self.client_cache)
-        LOGS_.kill.logg(20 - CNF.SIDE_[True] * 10, CNF.STRINGS.KILL_LOG % (str(self.client_cache), str(self.lapsdelset), str(argv)), ip=self.client_ip, cache=self.client_cache)
-        LOGS_.kill.logg(35, CNF.STRINGS.KILL_BACKUP, ico=CNF.PRINT_ICOS.recycle, ip=self.client_ip, cache=self.client_cache)
-        for SIG in CNF.SIG_SEQ:
-            kill(getpid(), SIG)
+        try:
+            for _attr in CNF.__dir__():
+                if _attr.startswith("_"): continue
+                if _attr in CNF._NOTPICKLE: continue
+                setattr(CNF._CNF_PROX, _attr, getattr(CNF, _attr))
+            if self.client_is_verified(): self.client_cache.pop(self.client_ip)
+            LOGS_.kill.logg(35, CNF.STRINGS.KILL_THREAD, ico=CNF.PRINT_ICOS.kill, ip=self.client_ip, cache=self.client_cache)
+            LOGS_.kill.logg(20 - CNF.SIDE_[True] * 10, CNF.STRINGS.KILL_LOG % (str(self.client_cache), str(self.lapsdelset), str(argv)), ip=self.client_ip, cache=self.client_cache)
+            LOGS_.kill.logg(35, CNF.STRINGS.KILL_BACKUP, ico=CNF.PRINT_ICOS.recycle, ip=self.client_ip, cache=self.client_cache)
+            for SIG in CNF.SIG_SEQ:
+                kill(getpid(), SIG)
+        except Exception as e:
+            CNF.EXP_EXIT(e)
 
     def run(self) -> None:
 

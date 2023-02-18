@@ -149,6 +149,14 @@ class GateWayQQ(Thread, Bridge, SecureCall):
 
 class GateWayQS(Thread):
 
+    OSERROR = (
+        32,     # Broken pipe
+        104,    # Reset by peer
+        110,    # Connection timeout
+        111,    # Refused
+        113,    # No route to host
+    )
+
     def __init__(self, connect:tuple, _quiet:bool=False):
         Thread.__init__(self)
         self.pipe_in = Queue(200)
@@ -174,7 +182,7 @@ class GateWayQS(Thread):
                     except OSError as e:
                         if not self._q:
                             LOGS_.sockio.logg(10, type(e), e, mt=self.run, ico=CNF.PRINT_ICOS.broken_pipe)
-                        if e.errno in (32, 104, 110, 111):  # BrokenPipe, ResetByPear, ConnectionTimeOut, Refused
+                        if e.errno in self.OSERROR:
                             raise ConnectionResetError
                         LOGS_.blackbox.logg(60, type(e), e, mt=self.run, ico=CNF.PRINT_ICOS.broken_pipe)
                     finally:

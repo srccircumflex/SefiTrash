@@ -238,9 +238,10 @@ MOD_STREAM_READLOOP: bool = None        # \=False                               
 MAXSIZE_TOXICS: int = None      # 0=disabled | n  \=0                                                                   Logging$0$int;{^[0-9]+$}$
 LOGPATH_TOXIC_DATA: str = None  # \=<_file_conf.py                                                                      Logging$0$dir;{2}$
 #           PRINTING                ####################################################################################
-PRINT_TIMEOUT_BAR: tuple[str,] = None                   # 'ansi' | 'utf' | 'ordin' | <_rc._def_print> tuple{20}  \='ordin'       Logging$2$choice;{ansi;utf;ordin}$
-PRINT_STREAM_ARGS: tuple[dict,object,dict,dict] = None  # 'ansi' | 'utf' | 'ordin' | <_rc._def_print> tuple(kwargs[formater], class[msg-ansis], dict[lv-to-ansi-prefix], dict[lv-to-ansi-name])  \='ordin'     Logging$0$choice;{ansi;utf;ordin}$
-PRINT_ICOS: object = None                               # 'ansi' | 'utf' | 'ordin' | <_rc._def_print> class[icos]  \='ordin'     Logging$0$choice;{ansi;utf;ordin}$
+PRINT_TIMEOUT_BAR: tuple[str,] = None                   # 'ansi' | 'utf' | 'ordin' | <_rc._def_print> tuple{20}  \='ansi'       Logging$2$choice;{ansi;utf;ordin}$
+PRINT_STREAM_ARGS: tuple[dict,object,dict,dict] = None  # 'ansi' | 'utf' | 'ordin' | <_rc._def_print> tuple(kwargs[formater], class[msg-ansis], dict[lv-to-ansi-prefix], dict[lv-to-ansi-name])  \='ansi'     Logging$0$choice;{ansi;utf;ordin}$
+PRINT_ICOS: object = None                               # 'ansi' | 'utf' | 'ordin' | <_rc._def_print> class[icos]  \='ansi'     Logging$0$choice;{ansi;utf;ordin}$
+PRINT_CONSOLE_ANSI: bool = None                         # 'ansi' | 'utf' | 'ordin' | <_rc._def_print> bool  \='ansi'     Logging$2$choice;{ansi;utf;ordin}$
 #           MISCELLANEOUS           ####################################################################################
 # stats
 #        # 0: 'st_mode',   # Permissions bits
@@ -318,6 +319,7 @@ PCONT: str = '\n'
 from _rc._msg_strings import *
 from functools import lru_cache
 from re import compile
+_NOTPICKLE = ("CNF_PROX", "BYPASSED")
 FROM_SUBCLASS = ('sleep1','sleep2','sleep3','shutdown','ban','ansi','utf','ordin')
 IFDEFENDIF = {
     'BOARD_PATH_RULE': (b'#f! BOARD_PATH_RULE', b'#EOF! BOARD_PATH_RULE', b'#'),

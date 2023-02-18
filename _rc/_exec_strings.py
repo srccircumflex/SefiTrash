@@ -45,6 +45,9 @@ _shutdown = 'raise OverflowError'
 _ban: str = 'raise PermissionError'
 
 class sleep1:
+    def __init__(self):
+        pass
+
     max_bad_clients_exec_lv1 = _sleep1
     max_bad_clients_exec_lv2 = _sleep1
     max_bad_clients_exec_lv3 = _sleep1
@@ -56,6 +59,9 @@ class sleep1:
     max_unverified_exec_lv3 = _sleep1
 
 class sleep2:
+    def __init__(self):
+        pass
+
     max_bad_clients_exec_lv1 = _sleep2
     max_bad_clients_exec_lv2 = _sleep2
     max_bad_clients_exec_lv3 = _sleep2
@@ -67,6 +73,9 @@ class sleep2:
     max_unverified_exec_lv3 = _sleep2
 
 class sleep3:
+    def __init__(self):
+        pass
+
     max_bad_clients_exec_lv1 = _sleep3
     max_bad_clients_exec_lv2 = _sleep3
     max_bad_clients_exec_lv3 = _sleep3
@@ -78,6 +87,9 @@ class sleep3:
     max_unverified_exec_lv3 = _sleep3
 
 class shutdown:
+    def __init__(self):
+        pass
+
     max_bad_clients_exec_lv1 = _shutdown
     max_bad_clients_exec_lv2 = _shutdown
     max_bad_clients_exec_lv3 = _shutdown
@@ -89,6 +101,9 @@ class shutdown:
     max_unverified_exec_lv3 = _shutdown
 
 class ban:
+    def __init__(self):
+        pass
+
     max_unverified_exec_lv1 = _ban
     max_unverified_exec_lv2 = _ban
     max_unverified_exec_lv3 = _ban
