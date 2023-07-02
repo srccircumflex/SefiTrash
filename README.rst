@@ -1,3 +1,8 @@
+.. image:: ./stopped.png
+    :align: left
+    :width: 200
+    :alt: stopped.png
+
 SEcureFIleTRAnsferSHell  (2021)
 ####
 
